@@ -1,0 +1,64 @@
+services:
+  - type: web
+    name: findjodi-backend
+    runtime: node
+    plan: free
+    region: singapore
+    branch: main
+
+    # `npm ci` installs from the lockfile. Dev deps (nodemon) are not needed —
+    # the service must boot with `npm start`, never `npm run dev`.
+    buildCommand: npm ci
+    startCommand: npm start
+
+    healthCheckPath: /health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render injects PORT; src/config/env.js already reads it.
+      - key: CLIENT_URL
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+      - key: PAYMENT_REQUIRED
+        value: "false"
+      - key: MEMBERSHIP_AMOUNT
+        value: "49900"
+      - key: MEMBERSHIP_CURRENCY
+        value: INR
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+
+      - key: MAIL_ENABLED
+        value: "false"
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: FindJodi
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: EMAIL_TOKEN_EXPIRY_HOURS
+        value: "24"
+
+      - key: MIN_GALLERY_PHOTOS
+        value: "5"
+      - key: MAX_GALLERY_PHOTOS
+        value: "10"
+      - key: MAX_UPLOAD_SIZE_MB
+        value: "5"
