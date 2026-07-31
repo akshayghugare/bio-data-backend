@@ -25,6 +25,17 @@ const env = {
     maxSizeMb: Number(process.env.MAX_UPLOAD_SIZE_MB) || 5,
   },
 
+  /**
+   * Self health check. Defaults to the local port, which proves the process is
+   * serving; set HEALTH_CHECK_URL to the public Render URL to also keep a free
+   * instance awake.
+   */
+  healthCheck: {
+    enabled: bool(process.env.HEALTH_CHECK_ENABLED, process.env.NODE_ENV === 'production'),
+    url: process.env.HEALTH_CHECK_URL || `http://127.0.0.1:${Number(process.env.PORT) || 5000}`,
+    schedule: process.env.HEALTH_CHECK_SCHEDULE || '*/10 * * * *',
+  },
+
   /** The single switch that decides whether payment sits in the signup flow. */
   paymentRequired: bool(process.env.PAYMENT_REQUIRED, false),
   membershipAmount: Number(process.env.MEMBERSHIP_AMOUNT) || 49900,

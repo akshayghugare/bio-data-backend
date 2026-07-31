@@ -3,6 +3,7 @@ const env = require('./config/env');
 const app = require('./app');
 const { connectDB, disconnectDB } = require('./config/db');
 const { verifyConnection } = require('./services/email.service');
+const { startHealthCron, stopHealthCron } = require('./cron/health.cron');
 
 const server = http.createServer(app);
 let shuttingDown = false;
@@ -20,6 +21,8 @@ async function start() {
     console.log(`  Environment      : ${env.nodeEnv}`);
     console.log(`  PAYMENT_REQUIRED : ${env.paymentRequired}`);
     console.log(`  Email verify     : ${env.mail.enabled ? 'SMTP' : 'console (MAIL_ENABLED=false)'}`);
+    // Started after listen() so the first ping cannot beat the open port.
+    startHealthCron();
     console.log('─'.repeat(56));
   });
 }
@@ -29,6 +32,7 @@ async function shutdown(signal, code = 0) {
   if (shuttingDown) return;
   shuttingDown = true;
   console.log(`\n${signal} received — shutting down gracefully…`);
+  stopHealthCron();
 
   const force = setTimeout(() => process.exit(1), 10000);
   force.unref();
